@@ -70,6 +70,11 @@ export interface Config {
     admins: Admin;
     media: Media;
     courses: Course;
+    articles: Article;
+    blog: Blog;
+    tutorials: Tutorial;
+    'tutorial-articles': TutorialArticle;
+    lessons: Lesson;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +85,11 @@ export interface Config {
     admins: AdminsSelect<false> | AdminsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
+    articles: ArticlesSelect<false> | ArticlesSelect<true>;
+    blog: BlogSelect<false> | BlogSelect<true>;
+    tutorials: TutorialsSelect<false> | TutorialsSelect<true>;
+    'tutorial-articles': TutorialArticlesSelect<false> | TutorialArticlesSelect<true>;
+    lessons: LessonsSelect<false> | LessonsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -169,11 +179,152 @@ export interface Course {
   id: number;
   title: string;
   /**
-   * Used for the URL of the course
+   * Ex: PY-CORE
    */
+  code: string;
   slug: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  version?: string | null;
+  level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  /**
+   * Ex: 10H 45M
+   */
+  duration?: string | null;
   description: string;
+  author?: string | null;
+  modules?:
+    | {
+        moduleTitle: string;
+        lessons: (number | Lesson)[];
+        id?: string | null;
+      }[]
+    | null;
+  status?: ('available' | 'coming_soon' | 'archived') | null;
+  techStack?:
+    | {
+        tech?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lessons".
+ */
+export interface Lesson {
+  id: number;
+  title: string;
+  slug: string;
+  duration?: string | null;
+  videoUrl?: string | null;
+  content?: string | null;
+  isPreview?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articles".
+ */
+export interface Article {
+  id: number;
+  title: string;
+  /**
+   * Ex: ART-01
+   */
+  code: string;
+  slug: string;
+  category: 'ARCHITECTURE' | 'INFRA' | 'SYSTEMS' | 'TYPESCRIPT' | 'DEVOPS';
+  /**
+   * Version du document
+   */
+  revision?: string | null;
+  subtitle: string;
+  content: string;
+  /**
+   * Empreinte numérique (ex: 0xbf2d9e1a)
+   */
+  hash?: string | null;
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  publishedDate: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog".
+ */
+export interface Blog {
+  id: number;
+  title: string;
+  /**
+   * Ex: LOG_982
+   */
+  code: string;
+  slug: string;
+  category: 'EDITORIAL' | 'REFLECTIONS' | 'OPINION' | 'POST_MORTEM';
+  signalStatus?: ('STABLE' | 'ENCRYPTED' | 'INTERCEPTED' | 'CORRUPTED') | null;
+  locationNode?: string | null;
+  isFeatured?: boolean | null;
+  /**
+   * Résumé court pour la liste du blog
+   */
+  excerpt: string;
+  /**
+   * La citation en gras au milieu de l'article
+   */
+  summaryBold?: string | null;
+  content: string;
+  publishedDate: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tutorials".
+ */
+export interface Tutorial {
+  id: number;
+  title: string;
+  code: string;
+  slug: string;
+  difficulty?: ('BEGINNER' | 'INTERMEDIATE' | 'ADVANCED') | null;
+  duration?: string | null;
+  description?: string | null;
+  /**
+   * Organisez le tutoriel par sections logiques
+   */
+  chapters?:
+    | {
+        chapterTitle: string;
+        /**
+         * Sélectionnez les articles/leçons pour ce chapitre
+         */
+        articles: (number | TutorialArticle)[];
+        id?: string | null;
+      }[]
+    | null;
+  checksum?: string | null;
+  status?: ('available' | 'coming_soon') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tutorial-articles".
+ */
+export interface TutorialArticle {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  duration?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -212,6 +363,26 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'courses';
         value: number | Course;
+      } | null)
+    | ({
+        relationTo: 'articles';
+        value: number | Article;
+      } | null)
+    | ({
+        relationTo: 'blog';
+        value: number | Blog;
+      } | null)
+    | ({
+        relationTo: 'tutorials';
+        value: number | Tutorial;
+      } | null)
+    | ({
+        relationTo: 'tutorial-articles';
+        value: number | TutorialArticle;
+      } | null)
+    | ({
+        relationTo: 'lessons';
+        value: number | Lesson;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -301,9 +472,118 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CoursesSelect<T extends boolean = true> {
   title?: T;
+  code?: T;
+  slug?: T;
+  version?: T;
+  level?: T;
+  duration?: T;
+  description?: T;
+  author?: T;
+  modules?:
+    | T
+    | {
+        moduleTitle?: T;
+        lessons?: T;
+        id?: T;
+      };
+  status?: T;
+  techStack?:
+    | T
+    | {
+        tech?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articles_select".
+ */
+export interface ArticlesSelect<T extends boolean = true> {
+  title?: T;
+  code?: T;
+  slug?: T;
+  category?: T;
+  revision?: T;
+  subtitle?: T;
+  content?: T;
+  hash?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  publishedDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog_select".
+ */
+export interface BlogSelect<T extends boolean = true> {
+  title?: T;
+  code?: T;
+  slug?: T;
+  category?: T;
+  signalStatus?: T;
+  locationNode?: T;
+  isFeatured?: T;
+  excerpt?: T;
+  summaryBold?: T;
+  content?: T;
+  publishedDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tutorials_select".
+ */
+export interface TutorialsSelect<T extends boolean = true> {
+  title?: T;
+  code?: T;
   slug?: T;
   difficulty?: T;
+  duration?: T;
   description?: T;
+  chapters?:
+    | T
+    | {
+        chapterTitle?: T;
+        articles?: T;
+        id?: T;
+      };
+  checksum?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tutorial-articles_select".
+ */
+export interface TutorialArticlesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  content?: T;
+  duration?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lessons_select".
+ */
+export interface LessonsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  duration?: T;
+  videoUrl?: T;
+  content?: T;
+  isPreview?: T;
   updatedAt?: T;
   createdAt?: T;
 }

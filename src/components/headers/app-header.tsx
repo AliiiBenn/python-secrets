@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { AuthNav } from '@/components/nav/auth-nav'
 import { cn } from '@/lib/utils'
 
-const navItems = [
+export const navItems = [
   { label: 'Courses', href: '/courses' },
   { label: 'Tutorials', href: '/tutorials' },
   { label: 'Articles', href: '/articles' },

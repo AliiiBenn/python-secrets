@@ -1,9 +1,12 @@
+import { QueryProvider } from './query-provider'
 import { ThemeProvider } from './theme-provider'
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      {children}
-    </ThemeProvider>
+    <QueryProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        {children}
+      </ThemeProvider>
+    </QueryProvider>
   )
 }

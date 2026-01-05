@@ -75,6 +75,7 @@ export interface Config {
     tutorials: Tutorial;
     'tutorial-articles': TutorialArticle;
     lessons: Lesson;
+    'user-progress': UserProgress;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -90,6 +91,7 @@ export interface Config {
     tutorials: TutorialsSelect<false> | TutorialsSelect<true>;
     'tutorial-articles': TutorialArticlesSelect<false> | TutorialArticlesSelect<true>;
     lessons: LessonsSelect<false> | LessonsSelect<true>;
+    'user-progress': UserProgressSelect<false> | UserProgressSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -178,33 +180,29 @@ export interface Media {
 export interface Course {
   id: number;
   title: string;
-  /**
-   * Ex: PY-CORE
-   */
-  code: string;
   slug: string;
-  version?: string | null;
+  /**
+   * Unique internal course code (e.g., PY-CORE-01)
+   */
+  code?: string | null;
+  description: string;
   level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
   /**
-   * Ex: 10H 45M
+   * Manage the structure of the course by adding chapters and assigning lessons
    */
-  duration?: string | null;
-  description: string;
-  author?: string | null;
   modules?:
     | {
         moduleTitle: string;
+        /**
+         * Slug for this chapter (e.g., introduction-to-syntax)
+         */
+        slug: string;
         lessons: (number | Lesson)[];
         id?: string | null;
       }[]
     | null;
+  duration?: string | null;
   status?: ('available' | 'coming_soon' | 'archived') | null;
-  techStack?:
-    | {
-        tech?: string | null;
-        id?: string | null;
-      }[]
-    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -330,6 +328,51 @@ export interface TutorialArticle {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "user-progress".
+ */
+export interface UserProgress {
+  id: number;
+  /**
+   * External user identifier from the authentication provider
+   */
+  userId: string;
+  course: number | Course;
+  lesson: number | Lesson;
+  status?: ('not_started' | 'in_progress' | 'completed') | null;
+  /**
+   * Check if the user has manually unlocked the solution
+   */
+  solutionUnlocked?: boolean | null;
+  /**
+   * Stores the current state of the IDE (files, code) for the user
+   */
+  codeSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Stores the user selected answers for quiz-type lessons
+   */
+  quizAnswers?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  lastViewedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -383,6 +426,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'lessons';
         value: number | Lesson;
+      } | null)
+    | ({
+        relationTo: 'user-progress';
+        value: number | UserProgress;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -472,27 +519,20 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CoursesSelect<T extends boolean = true> {
   title?: T;
-  code?: T;
   slug?: T;
-  version?: T;
-  level?: T;
-  duration?: T;
+  code?: T;
   description?: T;
-  author?: T;
+  level?: T;
   modules?:
     | T
     | {
         moduleTitle?: T;
+        slug?: T;
         lessons?: T;
         id?: T;
       };
+  duration?: T;
   status?: T;
-  techStack?:
-    | T
-    | {
-        tech?: T;
-        id?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -584,6 +624,22 @@ export interface LessonsSelect<T extends boolean = true> {
   videoUrl?: T;
   content?: T;
   isPreview?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "user-progress_select".
+ */
+export interface UserProgressSelect<T extends boolean = true> {
+  userId?: T;
+  course?: T;
+  lesson?: T;
+  status?: T;
+  solutionUnlocked?: T;
+  codeSnapshot?: T;
+  quizAnswers?: T;
+  lastViewedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

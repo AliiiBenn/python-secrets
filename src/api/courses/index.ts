@@ -100,6 +100,8 @@ export async function updateProgress({
 }) {
   const payload = await getPayload({ config })
 
+    console.log(userId)
+  
   const existing = await payload.find({
     collection: 'user-progress',
     where: {

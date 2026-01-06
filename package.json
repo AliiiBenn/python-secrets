@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@monaco-editor/react": "^4.7.0",
     "@payloadcms/db-postgres": "3.69.0",
     "@payloadcms/next": "3.69.0",
     "@payloadcms/richtext-lexical": "3.69.0",
@@ -78,7 +79,8 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
     "vaul": "^1.1.2",
-    "zod": "^4.3.4"
+    "zod": "^4.3.4",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",

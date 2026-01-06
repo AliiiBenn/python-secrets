@@ -54,7 +54,14 @@ export default async function LessonLayout({
 
   const DescriptionPanel = (
     <div className="h-full border rounded-md flex flex-col overflow-hidden bg-background">
-      <LessonSidebarHeader userId={session?.user.id} lessonId={lesson.id} courseId={course.id} />
+      <LessonSidebarHeader
+        userId={session?.user.id}
+        lessonId={lesson.id}
+        courseId={course.id}
+        courseSlug={course_id}
+        chapterSlug={chapter_id}
+        partSlug={part_id}
+      />
 
       <div className="flex-1 overflow-y-auto p-4 md:p-6">
         <div className="flex flex-col mb-4">
@@ -110,11 +117,11 @@ export default async function LessonLayout({
         {/* VUE DESKTOP */}
         <div className="hidden md:flex flex-1 min-h-0">
           <ResizablePanelGroup direction="horizontal" className="w-full h-full gap-0.5">
-            <ResizablePanel defaultSize={50} minSize={20}>
+            <ResizablePanel defaultSize={50} minSize={30}>
               {DescriptionPanel}
             </ResizablePanel>
             <ResizableHandle className="w-1 bg-transparent hover:bg-border rounded-md transition-all" />
-            <ResizablePanel defaultSize={50} minSize={20} className="flex">
+            <ResizablePanel defaultSize={50} minSize={30} className="flex">
               {EditorPanel}
             </ResizablePanel>
           </ResizablePanelGroup>

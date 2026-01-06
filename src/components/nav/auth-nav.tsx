@@ -30,9 +30,8 @@ export const AuthNav = () => {
       <div className="hidden md:flex items-center gap-3">
         {session ? (
           <>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/dashboard" className="flex items-center gap-2">
-                <LayoutDashboard className="w-4 h-4" />
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/courses" className="flex items-center gap-2">
                 Dashboard
               </Link>
             </Button>

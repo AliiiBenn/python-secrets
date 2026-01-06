@@ -1,75 +1,68 @@
 "use client"
 
 import React, { useRef, useState } from "react"
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import type { ImperativePanelHandle } from "react-resizable-panels"
-
 import { FileSystem } from "./file-system"
 import { Editor } from "./editor"
 import { Console } from "./console"
 
 export const IDE = () => {
-  // Référence pour manipuler le panneau du bas
   const consolePanelRef = useRef<ImperativePanelHandle>(null)
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isConsoleCollapsed, setIsConsoleCollapsed] = useState(false)
+  const fileSystemPanelRef = useRef<ImperativePanelHandle>(null)
+  const [isFsCollapsed, setIsFsCollapsed] = useState(false)
 
   const toggleConsole = () => {
     const panel = consolePanelRef.current
-    if (panel) {
-      if (isCollapsed) {
-        panel.expand() // Revient à la taille par défaut
-      } else {
-        panel.collapse() // Se réduit à la taille "collapsedSize"
-      }
-    }
+    if (panel) isConsoleCollapsed ? panel.expand() : panel.collapse()
+  }
+
+  const toggleFileSystem = () => {
+    const panel = fileSystemPanelRef.current
+    if (panel) isFsCollapsed ? panel.expand() : panel.collapse()
   }
 
   return (
     <div className="w-full h-full flex flex-col overflow-hidden bg-background">
       <ResizablePanelGroup direction="horizontal" className="w-full h-full">
-        
-        {/* COLONNE GAUCHE */}
-        <ResizablePanel defaultSize={20} minSize={15} className="bg-muted/10">
+        <ResizablePanel 
+          ref={fileSystemPanelRef}
+          defaultSize={20} 
+          minSize={15} 
+          collapsible={true}
+          collapsedSize={0}
+          onCollapse={() => setIsFsCollapsed(true)}
+          onExpand={() => setIsFsCollapsed(false)}
+          className="bg-muted/10"
+        >
           <FileSystem />
         </ResizablePanel>
 
-        <ResizableHandle />
+        {!isFsCollapsed && <ResizableHandle />}
 
-        {/* COLONNE DROITE */}
         <ResizablePanel defaultSize={80}>
           <ResizablePanelGroup direction="vertical">
-            
-            {/* LIGNE DU HAUT : Editeur */}
             <ResizablePanel defaultSize={70} minSize={30}>
-              <Editor />
+              <Editor onToggleFileSystem={toggleFileSystem} isFsCollapsed={isFsCollapsed} />
             </ResizablePanel>
 
             <ResizableHandle />
 
-            {/* LIGNE DU BAS : Console / Terminal */}
             <ResizablePanel 
               ref={consolePanelRef}
               defaultSize={30} 
               collapsible={true}
-              collapsedSize={4} // Environ 40px de hauteur pour garder le header visible
+              collapsedSize={4}
               minSize={10}
-              onCollapse={() => setIsCollapsed(true)}
-              onExpand={() => setIsCollapsed(false)}
+              onCollapse={() => setIsConsoleCollapsed(true)}
+              onExpand={() => setIsConsoleCollapsed(false)}
               className="flex flex-col"
             >
-              <Console 
-                isCollapsed={isCollapsed} 
-                onToggle={toggleConsole} 
-              />
+              <Console isCollapsed={isConsoleCollapsed} onToggle={toggleConsole} />
             </ResizablePanel>
-
           </ResizablePanelGroup>
         </ResizablePanel>
-
       </ResizablePanelGroup>
     </div>
   )

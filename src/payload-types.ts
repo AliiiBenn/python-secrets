@@ -77,6 +77,7 @@ export interface Config {
     lessons: Lesson;
     'user-progress': UserProgress;
     quizzes: Quiz;
+    'challenges-exercices': ChallengesExercice;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -94,6 +95,7 @@ export interface Config {
     lessons: LessonsSelect<false> | LessonsSelect<true>;
     'user-progress': UserProgressSelect<false> | UserProgressSelect<true>;
     quizzes: QuizzesSelect<false> | QuizzesSelect<true>;
+    'challenges-exercices': ChallengesExercicesSelect<false> | ChallengesExercicesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -216,10 +218,115 @@ export interface Lesson {
   id: number;
   title: string;
   slug: string;
-  duration?: string | null;
-  videoUrl?: string | null;
-  content?: string | null;
-  isPreview?: boolean | null;
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  solution?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  exercise?:
+    | ({
+        relationTo: 'quizzes';
+        value: number | Quiz;
+      } | null)
+    | ({
+        relationTo: 'challenges-exercices';
+        value: number | ChallengesExercice;
+      } | null);
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quizzes".
+ */
+export interface Quiz {
+  id: number;
+  title: string;
+  slug: string;
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  questions?:
+    | {
+        question: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        answers?:
+          | {
+              text: string;
+              isCorrect?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "challenges-exercices".
+ */
+export interface ChallengesExercice {
+  id: number;
+  title: string;
+  slug: string;
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  fileStructure:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  tests:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -375,45 +482,6 @@ export interface UserProgress {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "quizzes".
- */
-export interface Quiz {
-  id: number;
-  title: string;
-  slug: string;
-  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
-  questions?:
-    | {
-        question: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        answers?:
-          | {
-              text: string;
-              isCorrect?: boolean | null;
-              id?: string | null;
-            }[]
-          | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -475,6 +543,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'quizzes';
         value: number | Quiz;
+      } | null)
+    | ({
+        relationTo: 'challenges-exercices';
+        value: number | ChallengesExercice;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -665,10 +737,10 @@ export interface TutorialArticlesSelect<T extends boolean = true> {
 export interface LessonsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  duration?: T;
-  videoUrl?: T;
-  content?: T;
-  isPreview?: T;
+  difficulty?: T;
+  description?: T;
+  solution?: T;
+  exercise?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -709,6 +781,19 @@ export interface QuizzesSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "challenges-exercices_select".
+ */
+export interface ChallengesExercicesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  difficulty?: T;
+  fileStructure?: T;
+  tests?: T;
   updatedAt?: T;
   createdAt?: T;
 }

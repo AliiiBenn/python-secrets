@@ -5,7 +5,7 @@ import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
-import { Admins, Media, Courses, Articles, Blog, Tutorials, TutorialArticles, Lessons, UserProgress, Quizzes, ChallengesExercices } from '@/collections'
+import { Admins, Media, Courses, Articles, Blog, Tutorials, TutorialArticles, Lessons, UserProgress, Quizzes, ChallengesExercices, LessonEngagement } from '@/collections'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -17,7 +17,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Admins, Media, Courses, Articles, Blog, Tutorials, TutorialArticles, Lessons, UserProgress, Quizzes, ChallengesExercices],
+  collections: [Admins, Media, Courses, Articles, Blog, Tutorials, TutorialArticles, Lessons, UserProgress, Quizzes, ChallengesExercices, LessonEngagement],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

@@ -11,11 +11,12 @@ export const Lessons = {
     {
       name: 'description',
       type: 'richText',
-      required: true,
+      required: true
     },
     {
       name: 'solution',
       type: 'richText',
+      required: true
     },
     {
       name: 'exercise',

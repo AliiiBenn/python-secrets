@@ -1,4 +1,5 @@
 import { CollectionConfig } from 'payload'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 
 export const Blog: CollectionConfig = {
   slug: 'blog',
@@ -78,8 +79,28 @@ export const Blog: CollectionConfig = {
     },
     {
       name: 'content',
-      type: 'textarea', // Sera remplacé par Rich Text plus tard
+      type: 'richText',
       required: true,
+      editor: lexicalEditor({}),
+    },
+    {
+      name: 'tags',
+      type: 'array',
+      fields: [
+        {
+          name: 'tag',
+          type: 'text',
+        },
+      ],
+    },
+    {
+      name: 'relatedBlogPosts',
+      type: 'relationship',
+      relationTo: 'blog',
+      hasMany: true,
+      admin: {
+        description: 'Related blog posts to recommend',
+      },
     },
     {
       name: 'publishedDate',

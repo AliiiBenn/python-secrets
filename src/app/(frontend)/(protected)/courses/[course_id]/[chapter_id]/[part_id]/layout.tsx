@@ -7,8 +7,6 @@ import {
   FileText,
   Lightbulb,
   History,
-  ThumbsUp,
-  ThumbsDown,
   Code2,
   BookOpen,
 } from 'lucide-react'
@@ -16,11 +14,13 @@ import { Badge } from '@/components/ui/badge'
 import { ButtonGroup } from '@/components/ui/button-group'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { IDE } from '@/core/ide/components'
+import { LessonExercisePanel } from '@/components/courses/lessons/lesson-exercise-panel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { notFound } from 'next/navigation'
 import { getLesson } from '@/api/courses'
 import { LessonSidebarHeader } from '@/components/courses/lessons/nav/lesson-navigation'
+import { LessonRatingButtons } from '@/components/courses/lessons/lesson-rating-buttons'
+import { LessonStatusBadge } from '@/components/courses/lessons/lesson-status-badge'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 
@@ -47,10 +47,7 @@ export default async function LessonLayout({
 
   const { lesson, course, chapter, navigation } = data
 
-  // On peut imaginer que le statut vient de la leçon ou d'une autre requête UserProgress
-  // Pour l'instant on utilise des fallbacks
   const difficulty = course.level || 'Beginner'
-  const status = 'In Progress' // À lier plus tard à UserProgress
 
   const DescriptionPanel = (
     <div className="h-full border rounded-md flex flex-col overflow-hidden bg-background">
@@ -71,9 +68,11 @@ export default async function LessonLayout({
           <div className="flex items-start justify-between gap-4">
             <h1 className="text-xl md:text-2xl font-bold">{lesson.title}</h1>
             <div className="flex gap-2 shrink-0">
-              <Badge variant="secondary" className="hidden sm:flex">
-                {status}
-              </Badge>
+              <LessonStatusBadge
+                userId={session?.user.id || ''}
+                lessonId={lesson.id}
+                courseId={course.id}
+              />
               <Badge
                 variant="outline"
                 className={cn(
@@ -91,21 +90,19 @@ export default async function LessonLayout({
       </div>
 
       <footer className="shrink-0 border-t flex items-center justify-between p-2 bg-muted/5">
-        <div className="flex gap-1">
-          <Button variant="ghost" size="sm" className="h-8 gap-2 text-xs">
-            <ThumbsUp className="h-4 w-4" /> Like
-          </Button>
-          <Button variant="ghost" size="sm" className="h-8 gap-2 text-xs">
-            <ThumbsDown className="h-4 w-4" /> Dislike
-          </Button>
-        </div>
+        <LessonRatingButtons userId={session?.user.id} lessonId={lesson.id} />
       </footer>
     </div>
   )
 
   const EditorPanel = (
     <div className="flex-1 border rounded-md overflow-hidden h-full">
-      <IDE />
+      <LessonExercisePanel
+        exercise={lesson.exercise}
+        userId={session?.user.id}
+        lessonId={lesson.id}
+        courseId={course.id}
+      />
     </div>
   )
 

@@ -78,6 +78,7 @@ export interface Config {
     'user-progress': UserProgress;
     quizzes: Quiz;
     'challenges-exercices': ChallengesExercice;
+    'lesson-engagement': LessonEngagement;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -96,6 +97,7 @@ export interface Config {
     'user-progress': UserProgressSelect<false> | UserProgressSelect<true>;
     quizzes: QuizzesSelect<false> | QuizzesSelect<true>;
     'challenges-exercices': ChallengesExercicesSelect<false> | ChallengesExercicesSelect<true>;
+    'lesson-engagement': LessonEngagementSelect<false> | LessonEngagementSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -234,7 +236,7 @@ export interface Lesson {
     };
     [k: string]: unknown;
   };
-  solution?: {
+  solution: {
     root: {
       type: string;
       children: {
@@ -248,7 +250,7 @@ export interface Lesson {
       version: number;
     };
     [k: string]: unknown;
-  } | null;
+  };
   exercise?:
     | ({
         relationTo: 'quizzes';
@@ -343,12 +345,27 @@ export interface Article {
   code: string;
   slug: string;
   category: 'ARCHITECTURE' | 'INFRA' | 'SYSTEMS' | 'TYPESCRIPT' | 'DEVOPS';
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
   /**
    * Version du document
    */
   revision?: string | null;
   subtitle: string;
-  content: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
   /**
    * Empreinte numérique (ex: 0xbf2d9e1a)
    */
@@ -360,6 +377,10 @@ export interface Article {
       }[]
     | null;
   publishedDate: string;
+  /**
+   * Related articles to recommend
+   */
+  relatedArticles?: (number | Article)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -387,7 +408,31 @@ export interface Blog {
    * La citation en gras au milieu de l'article
    */
   summaryBold?: string | null;
-  content: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Related blog posts to recommend
+   */
+  relatedBlogPosts?: (number | Blog)[] | null;
   publishedDate: string;
   updatedAt: string;
   createdAt: string;
@@ -482,6 +527,28 @@ export interface UserProgress {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lesson-engagement".
+ */
+export interface LessonEngagement {
+  id: number;
+  /**
+   * External user identifier from the authentication provider
+   */
+  userId: string;
+  lesson: number | Lesson;
+  /**
+   * Like or dislike (independent from rating)
+   */
+  engagementType?: ('like' | 'dislike') | null;
+  /**
+   * Rating from 1 to 5 (independent from engagement type)
+   */
+  rating?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -547,6 +614,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'challenges-exercices';
         value: number | ChallengesExercice;
+      } | null)
+    | ({
+        relationTo: 'lesson-engagement';
+        value: number | LessonEngagement;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -662,6 +733,7 @@ export interface ArticlesSelect<T extends boolean = true> {
   code?: T;
   slug?: T;
   category?: T;
+  difficulty?: T;
   revision?: T;
   subtitle?: T;
   content?: T;
@@ -673,6 +745,7 @@ export interface ArticlesSelect<T extends boolean = true> {
         id?: T;
       };
   publishedDate?: T;
+  relatedArticles?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -691,6 +764,13 @@ export interface BlogSelect<T extends boolean = true> {
   excerpt?: T;
   summaryBold?: T;
   content?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  relatedBlogPosts?: T;
   publishedDate?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -794,6 +874,18 @@ export interface ChallengesExercicesSelect<T extends boolean = true> {
   difficulty?: T;
   fileStructure?: T;
   tests?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lesson-engagement_select".
+ */
+export interface LessonEngagementSelect<T extends boolean = true> {
+  userId?: T;
+  lesson?: T;
+  engagementType?: T;
+  rating?: T;
   updatedAt?: T;
   createdAt?: T;
 }

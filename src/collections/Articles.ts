@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload'
-
+import { difficultyField } from '@/fields/Difficulty'
 export const Articles: CollectionConfig = {
   slug: 'articles',
   admin: {
@@ -40,6 +40,7 @@ export const Articles: CollectionConfig = {
         { label: 'DevOps', value: 'DEVOPS' },
       ],
     },
+    difficultyField,
     {
       name: 'revision',
       type: 'text',
@@ -55,7 +56,7 @@ export const Articles: CollectionConfig = {
     },
     {
       name: 'content',
-      type: 'textarea', // Sera remplacé par Rich Text plus tard
+      type: 'richText',
       required: true,
     },
     {
@@ -79,6 +80,15 @@ export const Articles: CollectionConfig = {
       name: 'publishedDate',
       type: 'date',
       required: true,
+    },
+    {
+      name: 'relatedArticles',
+      type: 'relationship',
+      relationTo: 'articles',
+      hasMany: true,
+      admin: {
+        description: 'Related articles to recommend',
+      },
     },
   ],
 }
